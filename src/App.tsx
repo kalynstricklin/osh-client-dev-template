@@ -13,274 +13,159 @@
  *
  */
 
-import React, { useEffect, useMemo, useRef } from "react";
-import { Cartesian3, Ion, SceneMode, Terrain, } from "@cesium/engine";
-import "@cesium/engine/Source/Widget/CesiumWidget.css";
-import CesiumView from "osh-js/source/core/ui/view/map/CesiumView.js";
-import DataSynchronizer from 'osh-js/source/core/timesync/DataSynchronizer';
-import { Mode } from "osh-js/source/core/datasource/Mode";
-import PointMarkerLayer from "osh-js/source/core/ui/layer/PointMarkerLayer";
-import PolygonLayer from "osh-js/source/core/ui/layer/PolygonLayer";
-import SweApi from "osh-js/source/core/datasource/sweapi/SweApi.datasource";
-import VideoDataLayer from "osh-js/source/core/ui/layer/VideoDataLayer";
-import VideoView from "osh-js/source/core/ui/view/video/VideoView";
+import LaneStatus from "./LaneStatus";
+import React from "react";
 
 export default function App() {
-    // A Cesium Ion access token can be obtained for free from https://ion.cesium.com/.
-    // Do not commit your access token to a public repository.
-    // Ion.defaultAccessToken = '';
+    // let server = "192.168.1.126:8282/sensorhub/sos";
+    // let id = "ltcm1utn2mndo";
+    // let start = useMemo(() => new Date((Date.now() - 600000)).toISOString(), []);
+    // let end = "2055-01-01T00:00:00.000Z";
+    //
+    // const [alarmState, setAlarmState] = useState ("");
+    // const [alarmColor, setAlarmColor] = useState ("");
+    //
+    // let neutronDataSource = new SosGetResult("neutronAlarmState",{
+    //     endpointUrl: server,
+    //     offeringID: "urn:osh:sensor:rapiscan:rpm001",
+    //     observedProperty: "http://www.opengis.net/def/alarm",
+    //     startTime: start,
+    //     endTime: "2055-01-01T00:00:00.000Z",
+    //     mode: Mode.REAL_TIME
+    // });
+    //
+    // neutronDataSource.subscribe((message: any[]) => {
+    //         console.log(message);
+    //
+    //         // @ts-ignore
+    //     let msgVal: any[] = message.values;
+    //
+    //         msgVal.forEach((value) => setAlarm(value))
+    //
+    //         function setAlarm(value:any[]){
+    //
+    //             let state = findInObject(value, 'alarmState')
+    //             console.log(state)
+    //             setAlarmState(state)
+    //
+    //             if(state == "Alarm"){
+    //                 // setAlarmColor('primary.alarm')
+    //                 setAlarmColor('red')
+    //             }else if (state == "Background"){
+    //                 setAlarmColor('purple')
+    //                 // setAlarmColor('purple')
+    //             }else if (state == "Fault - Neutron High"){
+    //                 // setAlarmColor('primary.fault')
+    //                 setAlarmColor('yellow')
+    //             }else if (state == "Scan"){
+    //                 // setAlarmColor('primary.scan')
+    //                 setAlarmColor('blue')
+    //             }
+    //         }
+    //
+    //     }, [EventType.DATA]);
+    //
+    //
+    // let neutronLayerCurve = new CurveLayer({
+    //     dataSourceId: neutronDataSource.id,
+    //     name: "Neutron Chart (cps)",
+    //     backgroundColor: 'rgba(220,89,67,0.83)',
+    //     getValues: (rec: { neutronGrossCount: any; }, timeStamp: any) => {
+    //         return {
+    //             x: timeStamp,
+    //             y: rec.neutronGrossCount
+    //         }
+    //     },
+    // });
+    //
+    //
+    // let neutronView = new ChartJsView({
+    //     container: 'neutron-container',
+    //     layers: [neutronLayerCurve],
+    //     css: 'chart-view',
+    //     type: "line"
+    // });
+    //
+    // neutronDataSource.connect();
 
-    const server = "api.georobotix.io/ogc/t18/api";
-    const start = useMemo(() => new Date((Date.now() - 600000)).toISOString(), []);
-    const end = "2024-12-31T23:59:59Z";
-    const secure = true;
-    const locationInfoDsId = "o7pce3e60s0ie";
-    const attitudeInfoDsId = "mlme3gtdfepvc";
-    const videoDsId = "h225hesual08g";
-    const fovDsId = "iabpf1ivua1qm";
 
-    const cesiumContainer = useRef(null);
-    const videoContainer = useRef(null);
+    // function findInObject(record: any, term: string) {
+    //
+    //     let value: any = null;
+    //
+    //     let targets: string[] = term.split("|");
+    //
+    //     for (let targetIdx = 0; value === null && targetIdx < targets.length; ++targetIdx) {
+    //
+    //         let key: string = targets[targetIdx].trim();
+    //
+    //         if (Array.isArray(record)) {
+    //
+    //             for (const field of record) {
+    //
+    //                 value = findInObject(field, key);
+    //
+    //                 if (value !== null) {
+    //                     break;
+    //                 }
+    //             }
+    //
+    //         } else {
+    //
+    //             if (record.hasOwnProperty(key)) {
+    //
+    //                 value = record[key];
+    //
+    //             } else {
+    //
+    //                 for (const k of Object.keys(record)) {
+    //
+    //                     if (typeof record[k] === "object") {
+    //
+    //                         value = findInObject(record[k], key);
+    //                     }
+    //                 }
+    //             }
+    //         }
+    //     }
+    //
+    //     return value;
+    // }
 
-    //#region Data Sources
-    /**
-     * UAV Location data source
-     * 
-     * @remarks This data source will be used by the point marker layer to display the UAV's location.
-     */
-    const uavLocDataSource = useMemo(() => new SweApi("UAV-Location", {
-        protocol: "wss",
-        endpointUrl: server,
-        resource: `/datastreams/${locationInfoDsId}/observations`,
-        startTime: start,
-        endTime: end,
-        mode: Mode.REPLAY,
-        tls: secure
-    }), []);
+    // return (
+    //     <ThemeProvider
+    //         theme={{
+    //             pallet: {
+    //                 primary: {
+    //                     alarm: '#FF0000',
+    //                     background: '#A020F0',
+    //                     scan: '#FFFF00',
+    //                     fault: '#359bec',
+    //                 },
+    //             },
+    //         }}
+    //
+    //     >
+    //         <div id="container">
+    //                 <h2 className="title">Neutron Alarm State</h2>
+    //                 <Box sx={{
+    //                     width: 100,
+    //                     height: 100,
+    //                     borderRadius:1,
+    //                     backgroundColor: alarmColor,
+    //                 }}
+    //                 >
+    //                     {alarmState}
+    //                 </Box>
+    //             {/*<div className='char-container' id="neutron-container"></div>*/}
+    //         </div>
+    //     </ThemeProvider>
+    // );
 
-    /**
-     * UAV Attitude data source
-     * 
-     * @remarks This data source will be used by the point marker layer to display the UAV's orientation.
-     */
-    const uavAttitudeDataSource = useMemo(() => new SweApi("UAV-Attitude", {
-        protocol: "wss",
-        endpointUrl: server,
-        resource: `/datastreams/${attitudeInfoDsId}/observations`,
-        startTime: start,
-        endTime: end,
-        mode: Mode.REPLAY,
-        tls: secure
-    }), []);
-
-    /**
-     * UAV Video data source
-     * 
-     * @remarks This data source will be used by the video view to display the UAV's video stream.
-     */
-    const uavVideoDataSource = useMemo(() => new SweApi("UAV-Video", {
-        protocol: "wss",
-        endpointUrl: server,
-        resource: `/datastreams/${videoDsId}/observations`,
-        startTime: start,
-        endTime: end,
-        mode: Mode.REPLAY,
-        tls: secure,
-        responseFormat: 'application/swe+binary'
-    }), []);
-
-    /**
-     * UAV Field of Regard data source
-     * 
-     * @remarks This data source will be used by the bounded draping layer to display the UAV's field of regard.
-     */
-    const uavForDataSource = useMemo(() => new SweApi("UAV-FOR", {
-        protocol: "wss",
-        endpointUrl: server,
-        resource: `/datastreams/${fovDsId}/observations`,
-        startTime: start,
-        endTime: end,
-        mode: Mode.REPLAY,
-        tls: secure
-    }), []);
-
-    /**
-     * Data Sources
-     * 
-     * @remarks This array contains all the data sources that will be used by the master time controller.
-     */
-    const dataSources = useMemo(() => {
-        return [
-            uavLocDataSource,
-            uavAttitudeDataSource,
-            uavVideoDataSource,
-            uavForDataSource
-        ];
-    }, [uavLocDataSource, uavAttitudeDataSource, uavVideoDataSource, uavForDataSource]);
-    //#endregion
-
-    //#region Layers
-    /**
-     * UAV Point Marker Layer
-     * 
-     * @remarks This layer will be used by the Cesium view to display the UAV's location and orientation.
-     */
-    const uavPointMarker = useMemo(() => new PointMarkerLayer({
-        labelOffset: [0, -30],
-        getLocation: {
-            dataSourceIds: [uavLocDataSource.getId()],
-            handler: function (rec: any) {
-                return {
-                    x: rec.location.lon,
-                    y: rec.location.lat,
-                    z: rec.location.alt
-                }
-            }
-
-        },
-        getOrientation: {
-            dataSourceIds: [uavAttitudeDataSource.getId()],
-            handler: function (rec: any) {
-                return {
-                    heading: rec.attitude.heading - 90.0
-                }
-            }
-        },
-        icon: 'images/uav.glb',
-        iconSize: [32, 64],
-        name: "UAV Location",
-        label: "UAV",
-        iconScale: .05,
-        color: '#FF8000'
-    }), [uavLocDataSource]);
-
-    /**
-     * Bounded Draping Layer
-     * 
-     * @remarks This layer will be used by the Cesium view to display the UAV's field of regard.
-     */
-    const boundedDrapingLayer = useMemo(() => new PolygonLayer({
-        opacity: .5,
-        getVertices: {
-            dataSourceIds: [uavForDataSource.getId()],
-            handler: function (rec: any) {
-                return [
-                    rec.geoRef.ulc.lon,
-                    rec.geoRef.ulc.lat,
-                    rec.geoRef.llc.lon,
-                    rec.geoRef.llc.lat,
-                    rec.geoRef.lrc.lon,
-                    rec.geoRef.lrc.lat,
-                    rec.geoRef.urc.lon,
-                    rec.geoRef.urc.lat,
-                ];
-            }
-        },
-    }), [uavForDataSource]);
-
-    /**
-     * UAV Video Data Layer
-     * 
-     * @remarks This layer will be used by the video view to display the UAV's video stream.
-     */
-    const videoDataLayer = useMemo(() => new VideoDataLayer({
-        dataSourceId: [uavVideoDataSource.getId()],
-        getFrameData: (rec: any) => {
-            return rec.img
-        },
-        getTimestamp: (rec: any) => {
-            return rec.timestamp
-        }
-    }), [uavVideoDataSource]);
-    //#endregion
-
-    /**
-     * Master Time Controller
-     * 
-     * @remarks This object will synchronize all the data sources and control the replay speed.
-     */
-    const masterTimeController = useMemo(() => new DataSynchronizer({
-        replaySpeed: 1,
-        intervalRate: 5,
-        dataSources: dataSources
-    }), [dataSources]);
-
-    // Set the marker ID and description for the UAV point marker
-    useEffect(() => {
-        uavPointMarker.props.markerId = "UAV UAS";
-        uavPointMarker.props.description = "UAV UAS";
-    }, [uavPointMarker])
-
-    // Create the video view with the UAV video data layer
-    useEffect(() => {
-        const videoView = new VideoView({
-            container: videoContainer.current.id,
-            css: 'video-h264',
-            name: "UAV Video",
-            framerate: 25,
-            showTime: false,
-            showStats: false,
-            layers: [videoDataLayer]
-        });
-    }, [])
-
-    // Create the Cesium view with the UAV point marker and bounded draping layers
-    useEffect(() => {
-        const cesiumView = new CesiumView({
-            container: cesiumContainer.current.id,
-            layers: [uavPointMarker, boundedDrapingLayer],
-            options: {
-                viewerProps: {
-                    terrain: Terrain.fromWorldTerrain(),
-                    sceneMode: SceneMode.SCENE3D,
-                    // infoBox: false,
-                    // geocoder: false,
-                    timeline: false,
-                    animation: false,
-                    homeButton: false,
-                    scene3DOnly: true,
-                    // baseLayerPicker: false,
-                    // sceneModePicker: false,
-                    fullscreenButton: false,
-                    // projectionPicker: false,
-                    // selectionIndicator: false,
-                    navigationHelpButton: true,
-                    navigationInstructionsInitiallyVisible: true
-                }
-            }
-        });
-
-        // Set the imagery and terrain providers
-        const baseLayerPicker = cesiumView.viewer.baseLayerPicker;
-
-        const imageryProviders = baseLayerPicker.viewModel.imageryProviderViewModels;
-        baseLayerPicker.viewModel.selectedImagery =
-            imageryProviders.find((imageProviders: any) => imageProviders.name === "Bing Maps Aerial");
-
-        const terrainProviders = baseLayerPicker.viewModel.terrainProviderViewModels;
-        baseLayerPicker.viewModel.selectedTerrain =
-            terrainProviders.find((terrainProviders: any) => terrainProviders.name === "Cesium World Terrain");
-
-        // Center the camera on the UAV
-        cesiumView.viewer.camera.flyTo({
-            destination: Cartesian3.fromDegrees(-86.67128902952935, 34.70690480206765, 10000)
-        });
-    }, [])
-
-    // Start streaming
-    useEffect(() => {
-        masterTimeController.connect();
-    }, [])
-
-    return (
-        <div id="container">
-            <div id="left">
-                <div id="cesium-container" ref={cesiumContainer}></div>
-            </div>
-            <div id="right">
-                <div className="title">UAV Video Stream</div>
-                <div id="video-window" ref={videoContainer}></div>
-            </div>
+    return(
+        <div>
+            <LaneStatus></LaneStatus>
         </div>
-    );
-};
+
+    )
+}

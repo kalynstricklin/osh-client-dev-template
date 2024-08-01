@@ -1,5 +1,5 @@
 {
-  "name": "osh-cliend-dev-template",
+  "name": "osh-client-dev-template",
   "version": "2.0.0",
   "description": "OSH Client Development Template",
   "main": "src/App.tsx",
@@ -65,6 +65,8 @@
     "browserify-zlib": "^0.2.0",
     "buffer": "^6.0.3",
     "cesium": "^1.114.0",
+    "chart.js": "^4.4.3",
+    "chartjs-adapter-moment": "^1.0.1",
     "file-loader": "^6.2.0",
     "html-plugin": "^0.1.0",
     "html-webpack-tags-plugin": "^3.0.2",
