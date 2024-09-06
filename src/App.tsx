@@ -40,11 +40,17 @@ function App() {
       const page = await subsystems.nextPage();
       
       console.log(page);
+
       const subsystem = page[0];
       const dataStreams = await subsystem.searchDataStreams();
       const dsPage = await dataStreams.nextPage();
 
       const occupancyStream = dsPage[0];
+
+      occupancyStream.streamObservations(new ObservationFilter(), (message: any[]) => {
+        console.log(message[0]);
+      });
+
 
       const videoSystem = page[1];
       const videoStreams = await videoSystem.searchDataStreams();
