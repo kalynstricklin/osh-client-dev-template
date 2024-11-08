@@ -81,11 +81,41 @@ function App() {
     }
   , []);
 
+    let videoDs = new SweApi({
+        networkOpts, 
+        mode: "realTime",
+        protocol: "ws",
+        responseFormat: "application/swe+binary",
+        startTime: "now",
+        endTime: "2055-01-01T00:00:00Z"
+      });
+      const videoContainer = useRef(null);
+
+  useEffect(() => {
+    if(videoDs == null) {
+      return;
+    }
+    
+    const videoView = new VideoView({
+      container: videoContainer.current.id,
+      name: "cat video",
+      layers: [new VideoDataLayer({
+        dataSourceId: [videoDs.getId()],
+        getFrameData: (rec: any) => {
+          return rec.img;
+        },
+        getTimestamp: (rec:any) => {
+          return rec.timestamp;
+        }
+      })]
+    })
+  }, [videoDs]);
+
   return (
     <div className="App">
       <h1>Lane: dd</h1>
       <div style={{ padding: 50 }}>
-          <div id="video-container" style={{ width: "100%", height: "100%" }}/>
+          <div id="video-container" ref={videoContainer} style={{ width: "100%", height: "100%" }}/>
       </div>
     </div>
   );
