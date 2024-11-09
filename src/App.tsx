@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import Systems from 'osh-js/source/core/sweapi/system/Systems';
 import SystemFilter from "osh-js/source/core/sweapi/system/SystemFilter";
 import DataStreamFilter from "osh-js/source/core/sweapi/datastream/DataStreamFilter";
@@ -13,7 +13,7 @@ import "./App.css";
 function App() {
 
   const networkOpts = {
-    endpointUrl: `localhost:8282/sensorhub/api`,
+    endpointUrl: `162.238.96.81:8781/sensorhub/api`,
     tls: false,
     connectorOpts: {
         username: 'admin',
@@ -55,13 +55,13 @@ function App() {
       // });
 
       // Or create a SweApi for videostream observations
-      const process = availableSystems.find((system: typeof System) => system.properties.properties.uid.includes("urn:osh:sensor:"));
-      console.log("Process: ")
-      console.log(process)
-      const processDatastreamsCol = await process.searchDataStreams(undefined, 50);
-      const processDatastreams = await processDatastreamsCol.nextPage();
-      console.log("Process datastreams: ")
-      console.log(processDatastreams)
+      // const process = availableSystems.find((system: typeof System) => system.properties.properties.uid.includes("urn:osh:sensor:"));
+      // console.log("Process: ")
+      // console.log(process)
+      // const processDatastreamsCol = await process.searchDataStreams(undefined, 50);
+      // const processDatastreams = await processDatastreamsCol.nextPage();
+      // console.log("Process datastreams: ")
+      // console.log(processDatastreams)
       // const videoDatastreamsCol = await videoDriver.searchDataStreams(new DataStreamFilter({ ObservationFilter: ["http://www.opengis.net/def/Video"] }));
 
       // Get all datastreams from a node paginated for whatever size
@@ -81,35 +81,50 @@ function App() {
     }
   , []);
 
-    let videoDs = new SweApi({
-        networkOpts, 
+    const videoContainer = useRef(null);
+    let videoDs: any = useMemo(() => 
+      new SweApi("Videostream", {
+        connectorOpts: networkOpts.connectorOpts,
+        endpointUrl: networkOpts.endpointUrl,
+        tls: networkOpts.tls, 
+        resource: "/datastreams/i8maba56u3ms4/observations",
         mode: "realTime",
         protocol: "ws",
         responseFormat: "application/swe+binary",
         startTime: "now",
         endTime: "2055-01-01T00:00:00Z"
-      });
-      const videoContainer = useRef(null);
+      }), []);
 
-  useEffect(() => {
-    if(videoDs == null) {
-      return;
-    }
-    
-    const videoView = new VideoView({
-      container: videoContainer.current.id,
-      name: "cat video",
-      layers: [new VideoDataLayer({
-        dataSourceId: [videoDs.getId()],
-        getFrameData: (rec: any) => {
-          return rec.img;
-        },
-        getTimestamp: (rec:any) => {
-          return rec.timestamp;
+      let videoView = useMemo(() => new VideoView({
+        container: "video-container",
+        name: "cat video",
+        showTime: false,
+        showStats: false,
+        layers: [new VideoDataLayer({
+          dataSourceId: [videoDs.getId()],
+          getFrameData: (rec: any) => {
+            return rec.img;
+          },
+          getTimestamp: (rec:any) => {
+            return rec.timestamp;
+          }
+        })]
+      }), [videoDs]);
+
+    useEffect(() => {
+      console.log(videoDs)
+      async function tryConnect() {
+        if(videoDs === undefined || videoDs === null) {
+          return;
         }
-      })]
-    })
-  }, [videoDs]);
+        const isConnected = await videoDs.isConnected();
+        if(!isConnected) {
+          console.log("Connecting")
+          videoDs.connect();
+        }
+      }
+      tryConnect();
+    }, [videoDs]);
 
   return (
     <div className="App">
