@@ -7,6 +7,7 @@ import DataStreams from "osh-js/source/core/sweapi/datastream/DataStreams";
 import VideoView from 'osh-js/source/core/ui/view/video/VideoView';
 import VideoDataLayer from 'osh-js/source/core/ui/layer/VideoDataLayer';
 import SweApi from "osh-js/source/core/datasource/sweapi/SweApi.datasource"
+import DataSynchronizer from 'osh-js/source/core/timesync/DataSynchronizer'
 import {Mode} from 'osh-js/source/core/datasource/Mode';
 import "./App.css";
 
@@ -81,19 +82,36 @@ function App() {
     }
   , []);
 
-    const videoContainer = useRef(null);
     let videoDs: any = useMemo(() => 
       new SweApi("Videostream", {
         connectorOpts: networkOpts.connectorOpts,
         endpointUrl: networkOpts.endpointUrl,
         tls: networkOpts.tls, 
-        resource: "/datastreams/i8maba56u3ms4/observations",
-        mode: "realTime",
+        resource: "/datastreams/i8maba56u3ms4/observations", // i8maba56u3ms4 // 4ef7f56me5422
+        mode: "replay",
         protocol: "ws",
         responseFormat: "application/swe+binary",
-        startTime: "now",
-        endTime: "2055-01-01T00:00:00Z"
+        startTime: "2024-11-08T21:02:11Z",
+        endTime: "2024-11-08T21:02:24Z"
       }), []);
+      let video2Ds: any = useMemo(() => 
+        new SweApi("Videostream", {
+          connectorOpts: networkOpts.connectorOpts,
+          endpointUrl: networkOpts.endpointUrl,
+          tls: networkOpts.tls, 
+          resource: "/datastreams/4ef7f56me5422/observations", // i8maba56u3ms4 // 4ef7f56me5422
+          mode: "replay",
+          protocol: "ws",
+          responseFormat: "application/swe+binary",
+          startTime: "2024-11-08T21:02:11Z",
+          endTime: "2024-11-08T21:02:24Z"
+        }), []);
+
+    let masterTimeController = useMemo(() => new DataSynchronizer({
+      replaySpeed: 1,
+      intervalRate: 5,
+      dataSources: [videoDs, video2Ds]
+    }), [videoDs]);
 
       let videoView = useMemo(() => new VideoView({
         container: "video-container",
@@ -110,6 +128,22 @@ function App() {
           }
         })]
       }), [videoDs]);
+      
+      let video2View = useMemo(() => new VideoView({
+        container: "video2-container",
+        name: "cat video2",
+        showTime: false,
+        showStats: false,
+        layers: [new VideoDataLayer({
+          dataSourceId: [videoDs.getId()],
+          getFrameData: (rec: any) => {
+            return rec.img;
+          },
+          getTimestamp: (rec:any) => {
+            return rec.timestamp;
+          }
+        })]
+      }), [video2Ds]);
 
     useEffect(() => {
       console.log(videoDs)
@@ -120,17 +154,22 @@ function App() {
         const isConnected = await videoDs.isConnected();
         if(!isConnected) {
           console.log("Connecting")
-          videoDs.connect();
+          masterTimeController.connect();
         }
       }
       tryConnect();
     }, [videoDs]);
 
   return (
-    <div className="App">
+    <div className="App" style={{ flex: 1, flexDirection: 'row'}}>
       <h1>Lane: dd</h1>
       <div style={{ padding: 50 }}>
-          <div id="video-container" ref={videoContainer} style={{ width: "100%", height: "100%" }}/>
+          <h2>Video From Livestream</h2>
+          <div id="video-container" style={{ width: "100%", height: "100%" }}/>
+      </div>
+      <div style={{ padding: 50 }}>
+          <h2>Video From Process Data</h2>
+          <div id="video2-container" style={{ width: "100%", height: "100%" }}/>
       </div>
     </div>
   );
