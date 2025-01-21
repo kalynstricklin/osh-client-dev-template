@@ -72,7 +72,7 @@
     "idb": "^7.1.1",
     "node-polyfill-webpack-plugin": "^2.0.1",
     "nouislider": "^15.6.1",
-    "osh-js": "git+https@github.com:opensensorhub/osh-js.git#mcs_baseline",
+    "osh-js": "git+https@github.com:opensensorhub/osh-js.git#dev",
     "patch-package": "^6.5.0",
     "path-browserify": "^1.0.1",
     "react": "^18.2.0",
